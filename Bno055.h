@@ -64,7 +64,7 @@ public:
 	float get_eul_p();
 	float get_eul_r();
 
-private:
+protected:
 
 	// I2C Registers
 	static const uint8_t i2c_addr = 0x28;
