@@ -10,7 +10,7 @@
  * The euler angle convertions are as follows:
  * - Heading increases modulo 2pi clockwise
  * - Positive pitch tilts the top of the body forwards
- * - Positive roll tilts the top of the body right
+ * - Positive roll tilts the top of the body left
  * 
  * The BNO055 supports axis remapping. The enumeration axis_config_t refers to
  * the position of the dot on the chip relative to the forward-facing
@@ -136,7 +136,7 @@ protected:
 	static const uint8_t reg_acc_x_addr = 0x08;
 	static const uint8_t reg_acc_y_addr = 0x0A;
 	static const uint8_t reg_acc_z_addr = 0x0C;
-	float acc_x; bool read_acc_x;
+	float acc_x; bool read_acc_x = false;
 	float acc_y; bool read_acc_y;
 	float acc_z; bool read_acc_z;
 	void read_acc();
