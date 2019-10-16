@@ -3,7 +3,7 @@
  * @brief Class for interfacing with BNO055 IMU
  * @author Dan Oates (WPI Class of 2020)
  * 
- * The BNO055 0-axis IMU computes absolute orientation, angular velocity, and
+ * The BNO055 9-axis IMU computes absolute orientation, angular velocity, and
  * gravity-adjusted acceleration. This class acts as an I2C interface with the
  * device for both the Arduino and Mbed platforms.
  * 
