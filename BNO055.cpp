@@ -311,7 +311,7 @@ float BNO055::get_eul_p()
  */
 void BNO055::update_qua()
 {
-	i2c.read_sequence(reg_qua_x_addr, 8);
+	i2c.read_sequence(reg_qua_w_addr, 8);
 	read_qua();
 }
 
