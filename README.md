@@ -10,9 +10,9 @@ The BNO055 supports axis remapping. The enumeration axis_config_t refers to the 
 - drb = Down, Right, Back
 
 ### Dependencies
-- [Unions](https://github.com/doates625/Unions.git)
 - [Platform](https://github.com/doates625/Platform.git)
 - [I2CDevice](https://github.com/doates625/I2CDevice.git)
+- [Struct](https://github.com/doates625/Struct.git)
 
 ### References
 - [Datasheet](https://cdn-shop.adafruit.com/datasheets/BST_BNO055_DS000_12.pdf)

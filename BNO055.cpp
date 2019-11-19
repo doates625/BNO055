@@ -18,10 +18,10 @@ const float BNO055::qua_per_lsb = 1.0f / 16384.0f;
  * @param wire TwoWire I2C interface
  * @param axis_config Axis remapping (see header)
  */
-BNO055::BNO055(I2CDEVICE_I2C_CLASS* i2c, axis_config_t axis_config)
+BNO055::BNO055(I2CDevice::i2c_t* i2c, axis_config_t axis_config) :
+	i2c(i2c, i2c_addr, Struct::lsb_first)
 {
-	// Configuration
-	this->i2c = I2CDevice(i2c, i2c_addr, I2CDevice::lsb_first);
+	// Axis Configuration
 	this->axis_config = axis_config;
 
 	// Data Storage
@@ -51,20 +51,20 @@ BNO055::BNO055(I2CDEVICE_I2C_CLASS* i2c, axis_config_t axis_config)
 bool BNO055::init()
 {
 	// Set to Configuration Mode
-	i2c.write_uint8(reg_opmode_addr, reg_opmode_config);
+	i2c.set(reg_opmode_addr, reg_opmode_config);
 
 	// Verify chip data
-	i2c.read_sequence(reg_id_addr, 4);
-	bool test1 = (i2c.read_uint8() == reg_id_chip);
-	bool test2 = (i2c.read_uint8() == reg_id_acc);
-	bool test3 = (i2c.read_uint8() == reg_id_mag);
-	bool test4 = (i2c.read_uint8() == reg_id_gyr);
+	i2c.get_seq(reg_id_addr, 4);
+	bool test1 = ((uint8_t)i2c == reg_id_chip);
+	bool test2 = ((uint8_t)i2c == reg_id_acc);
+	bool test3 = ((uint8_t)i2c == reg_id_mag);
+	bool test4 = ((uint8_t)i2c == reg_id_gyr);
 	bool connected = test1 && test2 && test3 && test4;
 
 	// Set IMU to 9-DOF mode and configure axis-remapping
 	if (connected)
 	{
-		i2c.write_uint8(reg_pwrmode_addr, reg_pwrmode_norm);
+		i2c.set(reg_pwrmode_addr, reg_pwrmode_norm);
 		uint8_t reg_axis_cfg_val = 0x00;
 		uint8_t reg_axis_sgn_val = 0x00;
 		switch (axis_config)
@@ -78,9 +78,9 @@ bool BNO055::init()
 			case dlb: reg_axis_cfg_val = 0x21; reg_axis_sgn_val = 0x07; break;
 			case drb: reg_axis_cfg_val = 0x24; reg_axis_sgn_val = 0x05; break;
 		}
-		i2c.write_uint8(reg_axis_config_addr, reg_axis_cfg_val);
-		i2c.write_uint8(reg_axis_sign_addr, reg_axis_sgn_val);
-		i2c.write_uint8(reg_opmode_addr, reg_opmode_ndof);
+		i2c.set(reg_axis_config_addr, reg_axis_cfg_val);
+		i2c.set(reg_axis_sign_addr, reg_axis_sgn_val);
+		i2c.set(reg_opmode_addr, reg_opmode_ndof);
 	}
 
 	// Return connection status
@@ -92,26 +92,15 @@ bool BNO055::init()
  */
 void BNO055::update()
 {
-#if defined(PLATFORM_ARDUINO)
-	i2c.read_sequence(reg_acc_x_addr, 32);
+	i2c.get_seq(reg_acc_x_addr, 32);
 	read_acc();
 	read_mag();
 	read_gyr();
 	read_eul();
 	read_qua();
-	i2c.read_sequence(reg_lia_x_addr, 12);
+	i2c.get_seq(reg_lia_x_addr, 12);
 	read_lia();
 	read_grv();
-#elif defined(PLATFORM_MBED)
-	i2c.read_sequence(reg_acc_x_addr, 44);
-	read_acc();
-	read_mag();
-	read_gyr();
-	read_eul();
-	read_qua();
-	read_lia();
-	read_grv();
-#endif
 }
 
 /**
@@ -119,7 +108,7 @@ void BNO055::update()
  */
 void BNO055::update_acc()
 {
-	i2c.read_sequence(reg_acc_x_addr, 6);
+	i2c.get_seq(reg_acc_x_addr, 6);
 	read_acc();
 }
 
@@ -133,7 +122,7 @@ float BNO055::get_acc_x()
 		read_acc_x = false;
 		return acc_x;
 	}
-	return i2c.read_int16(reg_acc_x_addr) * acc_per_lsb;
+	return (int16_t)i2c.get_seq(reg_acc_x_addr, 2) * acc_per_lsb;
 }
 
 /**
@@ -146,7 +135,7 @@ float BNO055::get_acc_y()
 		read_acc_y = false;
 		return acc_y;
 	}
-	return i2c.read_int16(reg_acc_y_addr) * acc_per_lsb;
+	return (int16_t)i2c.get_seq(reg_acc_y_addr, 2) * acc_per_lsb;
 }
 
 /**
@@ -159,7 +148,7 @@ float BNO055::get_acc_z()
 		read_acc_z = false;
 		return acc_z;
 	}
-	return i2c.read_int16(reg_acc_z_addr) * acc_per_lsb;
+	return (int16_t)i2c.get_seq(reg_acc_z_addr, 2) * acc_per_lsb;
 }
 
 /**
@@ -167,7 +156,7 @@ float BNO055::get_acc_z()
  */
 void BNO055::update_mag()
 {
-	i2c.read_sequence(reg_mag_x_addr, 6);
+	i2c.get_seq(reg_mag_x_addr, 6);
 	read_mag();
 }
 
@@ -181,7 +170,7 @@ float BNO055::get_mag_x()
 		read_mag_x = false;
 		return mag_x;
 	}
-	return i2c.read_int16(reg_mag_x_addr) * mag_per_lsb;
+	return (int16_t)i2c.get_seq(reg_mag_x_addr, 2) * mag_per_lsb;
 }
 
 /**
@@ -194,7 +183,7 @@ float BNO055::get_mag_y()
 		read_mag_y = false;
 		return mag_y;
 	}
-	return i2c.read_int16(reg_mag_y_addr) * mag_per_lsb;
+	return (int16_t)i2c.get_seq(reg_mag_y_addr, 2) * mag_per_lsb;
 }
 
 /**
@@ -207,7 +196,7 @@ float BNO055::get_mag_z()
 		read_mag_z = false;
 		return mag_z;
 	}
-	return i2c.read_int16(reg_mag_z_addr) * mag_per_lsb;
+	return (int16_t)i2c.get_seq(reg_mag_z_addr, 2) * mag_per_lsb;
 }
 
 /**
@@ -215,7 +204,7 @@ float BNO055::get_mag_z()
  */
 void BNO055::update_gyr()
 {
-	i2c.read_sequence(reg_gyr_x_addr, 6);
+	i2c.get_seq(reg_gyr_x_addr, 6);
 	read_gyr();
 }
 
@@ -229,7 +218,7 @@ float BNO055::get_gyr_x()
 		read_gyr_x = false;
 		return gyr_x;
 	}
-	return i2c.read_int16(reg_gyr_x_addr) * gyr_per_lsb;
+	return (int16_t)i2c.get_seq(reg_gyr_x_addr, 2) * gyr_per_lsb;
 }
 
 /**
@@ -242,7 +231,7 @@ float BNO055::get_gyr_y()
 		read_gyr_y = false;
 		return gyr_y;
 	}
-	return i2c.read_int16(reg_gyr_y_addr) * gyr_per_lsb;
+	return (int16_t)i2c.get_seq(reg_gyr_y_addr, 2) * gyr_per_lsb;
 }
 
 /**
@@ -255,7 +244,7 @@ float BNO055::get_gyr_z()
 		read_gyr_z = false;
 		return gyr_z;
 	}
-	return i2c.read_int16(reg_gyr_z_addr) * gyr_per_lsb;
+	return (int16_t)i2c.get_seq(reg_gyr_z_addr, 2) * gyr_per_lsb;
 }
 
 /**
@@ -263,7 +252,7 @@ float BNO055::get_gyr_z()
  */
 void BNO055::update_eul()
 {
-	i2c.read_sequence(reg_eul_h_addr, 6);
+	i2c.get_seq(reg_eul_h_addr, 6);
 	read_eul();
 }
 
@@ -277,7 +266,7 @@ float BNO055::get_eul_h()
 		read_eul_h = false;
 		return eul_h;
 	}
-	return i2c.read_int16(reg_eul_h_addr) * eul_per_lsb;
+	return (int16_t)i2c.get_seq(reg_eul_h_addr, 2) * eul_per_lsb;
 }
 
 /**
@@ -290,7 +279,7 @@ float BNO055::get_eul_r()
 		read_eul_r = false;
 		return eul_r;
 	}
-	return i2c.read_int16(reg_eul_r_addr) * eul_per_lsb;
+	return (int16_t)i2c.get_seq(reg_eul_r_addr, 2) * eul_per_lsb;
 }
 
 /**
@@ -303,7 +292,7 @@ float BNO055::get_eul_p()
 		read_eul_p = false;
 		return eul_p;
 	}
-	return i2c.read_int16(reg_eul_p_addr) * eul_per_lsb;
+	return (int16_t)i2c.get_seq(reg_eul_p_addr, 2) * eul_per_lsb;
 }
 
 /**
@@ -311,7 +300,7 @@ float BNO055::get_eul_p()
  */
 void BNO055::update_qua()
 {
-	i2c.read_sequence(reg_qua_w_addr, 8);
+	i2c.get_seq(reg_qua_w_addr, 8);
 	read_qua();
 }
 
@@ -325,7 +314,7 @@ float BNO055::get_qua_w()
 		read_qua_w = false;
 		return qua_w;
 	}
-	return i2c.read_int16(reg_qua_w_addr) * qua_per_lsb;
+	return (int16_t)i2c.get_seq(reg_qua_w_addr, 2) * qua_per_lsb;
 }
 
 /**
@@ -338,7 +327,7 @@ float BNO055::get_qua_x()
 		read_qua_x = false;
 		return qua_x;
 	}
-	return i2c.read_int16(reg_qua_x_addr) * qua_per_lsb;
+	return (int16_t)i2c.get_seq(reg_qua_x_addr, 2) * qua_per_lsb;
 }
 
 /**
@@ -351,7 +340,7 @@ float BNO055::get_qua_y()
 		read_qua_y = false;
 		return qua_y;
 	}
-	return i2c.read_int16(reg_qua_y_addr) * qua_per_lsb;
+	return (int16_t)i2c.get_seq(reg_qua_y_addr, 2) * qua_per_lsb;
 }
 
 /**
@@ -364,7 +353,7 @@ float BNO055::get_qua_z()
 		read_qua_z = false;
 		return qua_z;
 	}
-	return i2c.read_int16(reg_qua_z_addr) * qua_per_lsb;
+	return (int16_t)i2c.get_seq(reg_qua_z_addr, 2) * qua_per_lsb;
 }
 
 /**
@@ -372,7 +361,7 @@ float BNO055::get_qua_z()
  */
 void BNO055::update_lia()
 {
-	i2c.read_sequence(reg_lia_x_addr, 6);
+	i2c.get_seq(reg_lia_x_addr, 6);
 	read_lia();
 }
 
@@ -386,7 +375,7 @@ float BNO055::get_lia_x()
 		read_lia_x = false;
 		return lia_x;
 	}
-	return i2c.read_int16(reg_lia_x_addr) * acc_per_lsb;
+	return (int16_t)i2c.get_seq(reg_lia_x_addr, 2) * acc_per_lsb;
 }
 
 /**
@@ -399,7 +388,7 @@ float BNO055::get_lia_y()
 		read_lia_y = false;
 		return lia_y;
 	}
-	return i2c.read_int16(reg_lia_y_addr) * acc_per_lsb;
+	return (int16_t)i2c.get_seq(reg_lia_y_addr, 2) * acc_per_lsb;
 }
 
 /**
@@ -412,7 +401,7 @@ float BNO055::get_lia_z()
 		read_lia_z = false;
 		return lia_z;
 	}
-	return i2c.read_int16(reg_lia_z_addr) * acc_per_lsb;
+	return (int16_t)i2c.get_seq(reg_lia_z_addr, 2) * acc_per_lsb;
 }
 
 /**
@@ -420,7 +409,7 @@ float BNO055::get_lia_z()
  */
 void BNO055::update_grv()
 {
-	i2c.read_sequence(reg_grv_x_addr, 6);
+	i2c.get_seq(reg_grv_x_addr, 6);
 	read_grv();
 }
 
@@ -434,7 +423,7 @@ float BNO055::get_grv_x()
 		read_grv_x = false;
 		return grv_x;
 	}
-	return i2c.read_int16(reg_grv_x_addr) * acc_per_lsb;
+	return (int16_t)i2c.get_seq(reg_grv_x_addr, 2) * acc_per_lsb;
 }
 
 /**
@@ -447,7 +436,7 @@ float BNO055::get_grv_y()
 		read_grv_y = false;
 		return grv_y;
 	}
-	return i2c.read_int16(reg_grv_y_addr) * acc_per_lsb;
+	return (int16_t)i2c.get_seq(reg_grv_y_addr, 2) * acc_per_lsb;
 }
 
 /**
@@ -460,76 +449,76 @@ float BNO055::get_grv_z()
 		read_grv_z = false;
 		return grv_z;
 	}
-	return i2c.read_int16(reg_grv_z_addr) * acc_per_lsb;
+	return (int16_t)i2c.get_seq(reg_grv_z_addr, 2) * acc_per_lsb;
 }
 
 /**
- * @brief Reads acc registers after call to I2CDevice::read_sequence()
+ * @brief Reads acc registers after call to I2CDevice::get_seq()
  */
 void BNO055::read_acc()
 {
-	acc_x = i2c.read_int16() * acc_per_lsb; read_acc_x = true;
-	acc_y = i2c.read_int16() * acc_per_lsb; read_acc_y = true;
-	acc_z = i2c.read_int16() * acc_per_lsb; read_acc_z = true;
+	acc_x = (int16_t)i2c * acc_per_lsb; read_acc_x = true;
+	acc_y = (int16_t)i2c * acc_per_lsb; read_acc_y = true;
+	acc_z = (int16_t)i2c * acc_per_lsb; read_acc_z = true;
 }
 
 /**
- * @brief Reads mag registers after call to I2CDevice::read_sequence()
+ * @brief Reads mag registers after call to I2CDevice::get_seq()
  */
 void BNO055::read_mag()
 {
-	mag_x = i2c.read_int16() * mag_per_lsb; read_mag_x = true;
-	mag_y = i2c.read_int16() * mag_per_lsb; read_mag_y = true;
-	mag_z = i2c.read_int16() * mag_per_lsb; read_mag_z = true;
+	mag_x = (int16_t)i2c * mag_per_lsb; read_mag_x = true;
+	mag_y = (int16_t)i2c * mag_per_lsb; read_mag_y = true;
+	mag_z = (int16_t)i2c * mag_per_lsb; read_mag_z = true;
 }
 
 /**
- * @brief Reads gyr registers after call to I2CDevice::read_sequence()
+ * @brief Reads gyr registers after call to I2CDevice::get_seq()
  */
 void BNO055::read_gyr()
 {
-	gyr_x = i2c.read_int16() * gyr_per_lsb; read_gyr_x = true;
-	gyr_y = i2c.read_int16() * gyr_per_lsb; read_gyr_y = true;
-	gyr_z = i2c.read_int16() * gyr_per_lsb; read_gyr_z = true;
+	gyr_x = (int16_t)i2c * gyr_per_lsb; read_gyr_x = true;
+	gyr_y = (int16_t)i2c * gyr_per_lsb; read_gyr_y = true;
+	gyr_z = (int16_t)i2c * gyr_per_lsb; read_gyr_z = true;
 }
 
 /**
- * @brief Reads eul registers after call to I2CDevice::read_sequence()
+ * @brief Reads eul registers after call to I2CDevice::get_seq()
  */
 void BNO055::read_eul()
 {
-	eul_h = i2c.read_int16() * eul_per_lsb; read_eul_h = true;
-	eul_r = i2c.read_int16() * eul_per_lsb; read_eul_r = true;
-	eul_p = i2c.read_int16() * eul_per_lsb; read_eul_p = true;
+	eul_h = (int16_t)i2c * eul_per_lsb; read_eul_h = true;
+	eul_r = (int16_t)i2c * eul_per_lsb; read_eul_r = true;
+	eul_p = (int16_t)i2c * eul_per_lsb; read_eul_p = true;
 }
 
 /**
- * @brief Reads qua registers after call to I2CDevice::read_sequence()
+ * @brief Reads qua registers after call to I2CDevice::get_seq()
  */
 void BNO055::read_qua()
 {
-	qua_w = i2c.read_int16() * qua_per_lsb; read_qua_w = true;
-	qua_x = i2c.read_int16() * qua_per_lsb; read_qua_x = true;
-	qua_y = i2c.read_int16() * qua_per_lsb; read_qua_y = true;
-	qua_z = i2c.read_int16() * qua_per_lsb; read_qua_z = true;
+	qua_w = (int16_t)i2c * qua_per_lsb; read_qua_w = true;
+	qua_x = (int16_t)i2c * qua_per_lsb; read_qua_x = true;
+	qua_y = (int16_t)i2c * qua_per_lsb; read_qua_y = true;
+	qua_z = (int16_t)i2c * qua_per_lsb; read_qua_z = true;
 }
 
 /**
- * @brief Reads lia registers after call to I2CDevice::read_sequence()
+ * @brief Reads lia registers after call to I2CDevice::get_seq()
  */
 void BNO055::read_lia()
 {
-	lia_x = i2c.read_int16() * acc_per_lsb; read_lia_x = true;
-	lia_y = i2c.read_int16() * acc_per_lsb; read_lia_y = true;
-	lia_z = i2c.read_int16() * acc_per_lsb; read_lia_z = true;
+	lia_x = (int16_t)i2c * acc_per_lsb; read_lia_x = true;
+	lia_y = (int16_t)i2c * acc_per_lsb; read_lia_y = true;
+	lia_z = (int16_t)i2c * acc_per_lsb; read_lia_z = true;
 }
 
 /**
- * @brief Reads grv registers after call to I2CDevice::read_sequence()
+ * @brief Reads grv registers after call to I2CDevice::get_seq()
  */
 void BNO055::read_grv()
 {
-	grv_x = i2c.read_int16() * acc_per_lsb; read_grv_x = true;
-	grv_y = i2c.read_int16() * acc_per_lsb; read_grv_y = true;
-	grv_z = i2c.read_int16() * acc_per_lsb; read_grv_z = true;
+	grv_x = (int16_t)i2c * acc_per_lsb; read_grv_x = true;
+	grv_y = (int16_t)i2c * acc_per_lsb; read_grv_y = true;
+	grv_z = (int16_t)i2c * acc_per_lsb; read_grv_z = true;
 }

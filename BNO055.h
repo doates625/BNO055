@@ -9,10 +9,8 @@
 /**
  * I2CDevice Macro Update
  */
-#if defined(PLATFORM_MBED) && I2CDEVICE_BUFFER_SIZE < 44
-	#warning BNO055 requires I2CDEVICE_BUFFER_SIZE >= 44. Setting to 44...
-	#undef I2CDEVICE_BUFFER_SIZE
-	#define I2CDEVICE_BUFFER_SIZE 44
+#if I2CDEVICE_BUFFER_SIZE != 32
+	#error BNO055 requires I2CDEVICE_BUFFER_SIZE == 32
 #endif
 
 /**
@@ -37,7 +35,7 @@ public:
 	axis_config_t;
 
 	// Constructor and Basics
-	BNO055(I2CDEVICE_I2C_CLASS* i2c, axis_config_t axis_config = tlf);
+	BNO055(I2CDevice::i2c_t* i2c, axis_config_t axis_config = tlf);
 	bool init();
 	void update();
 
