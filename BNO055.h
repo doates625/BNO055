@@ -5,6 +5,7 @@
  */
 #pragma once
 #include <I2CDevice.h>
+#include <I2CReading.h>
 
 /**
  * I2CDevice Macro Update
@@ -110,40 +111,28 @@ protected:
 	static const uint8_t reg_acc_x_addr = 0x08;
 	static const uint8_t reg_acc_y_addr = 0x0A;
 	static const uint8_t reg_acc_z_addr = 0x0C;
-	float acc_x; bool read_acc_x = false;
-	float acc_y; bool read_acc_y;
-	float acc_z; bool read_acc_z;
-	void read_acc();
+	I2CReading<int16_t> acc_x, acc_y, acc_z;
 
 	// Magnetometer
 	static const float mag_per_lsb;
 	static const uint8_t reg_mag_x_addr = 0x0E;
 	static const uint8_t reg_mag_y_addr = 0x10;
 	static const uint8_t reg_mag_z_addr = 0x12;
-	float mag_x; bool read_mag_x;
-	float mag_y; bool read_mag_y;
-	float mag_z; bool read_mag_z;
-	void read_mag();
+	I2CReading<int16_t> mag_x, mag_y, mag_z;
 
 	// Gyroscope
 	static const float gyr_per_lsb;
 	static const uint8_t reg_gyr_x_addr = 0x14;
 	static const uint8_t reg_gyr_y_addr = 0x16;
 	static const uint8_t reg_gyr_z_addr = 0x18;
-	float gyr_x; bool read_gyr_x;
-	float gyr_y; bool read_gyr_y;
-	float gyr_z; bool read_gyr_z;
-	void read_gyr();
+	I2CReading<int16_t> gyr_x, gyr_y, gyr_z;
 
 	// I2C Euler Angle Registers
 	static const float eul_per_lsb;
 	static const uint8_t reg_eul_h_addr = 0x1A;
 	static const uint8_t reg_eul_r_addr = 0x1C;
 	static const uint8_t reg_eul_p_addr = 0x1E;
-	float eul_h; bool read_eul_h;
-	float eul_r; bool read_eul_r;
-	float eul_p; bool read_eul_p;
-	void read_eul();
+	I2CReading<int16_t> eul_h, eul_r, eul_p;
 
 	// I2C Quaternion Registers
 	static const float qua_per_lsb;
@@ -151,27 +140,17 @@ protected:
 	static const uint8_t reg_qua_x_addr = 0x22;
 	static const uint8_t reg_qua_y_addr = 0x24;
 	static const uint8_t reg_qua_z_addr = 0x26;
-	float qua_w; bool read_qua_w;
-	float qua_x; bool read_qua_x;
-	float qua_y; bool read_qua_y;
-	float qua_z; bool read_qua_z;
-	void read_qua();
+	I2CReading<int16_t> qua_w, qua_x, qua_y, qua_z;
 
 	// I2C Linear Acceleration Registers
 	static const uint8_t reg_lia_x_addr = 0x28;
 	static const uint8_t reg_lia_y_addr = 0x2A;
 	static const uint8_t reg_lia_z_addr = 0x2C;
-	float lia_x; bool read_lia_x;
-	float lia_y; bool read_lia_y;
-	float lia_z; bool read_lia_z;
-	void read_lia();
+	I2CReading<int16_t> lia_x, lia_y, lia_z;
 
 	// I2C Gravity Vector Registers
 	static const uint8_t reg_grv_x_addr = 0x2E;
 	static const uint8_t reg_grv_y_addr = 0x30;
 	static const uint8_t reg_grv_z_addr = 0x32;
-	float grv_x; bool read_grv_x;
-	float grv_y; bool read_grv_y;
-	float grv_z; bool read_grv_z;
-	void read_grv();
+	I2CReading<int16_t> grv_x, grv_y, grv_z;
 };

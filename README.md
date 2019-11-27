@@ -12,6 +12,7 @@ The BNO055 supports axis remapping. The enumeration axis_config_t refers to the 
 ### Dependencies
 - [Platform](https://github.com/doates625/Platform.git)
 - [I2CDevice](https://github.com/doates625/I2CDevice.git)
+- [I2CReading](https://github.com/doates625/Platform.git)
 - [Struct](https://github.com/doates625/Struct.git)
 
 ### References
