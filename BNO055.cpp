@@ -90,6 +90,15 @@ bool BNO055::init()
 }
 
 /**
+ * @brief Returns true if system is calibrated
+ */
+bool BNO055::calibrated()
+{
+	uint8_t reg_cal = (uint8_t)i2c.get_seq(reg_cal_addr, 1);
+	return (reg_cal & reg_cal_mask) == reg_cal_mask;
+}
+
+/**
  * @brief Updates all IMU readings
  */
 void BNO055::update()

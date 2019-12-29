@@ -38,6 +38,7 @@ public:
 	// Constructor and Basics
 	BNO055(I2CDevice::i2c_t* i2c, axis_config_t axis_config = tlf);
 	bool init();
+	bool calibrated();
 	void update();
 
 	// Accelerometer
@@ -95,6 +96,10 @@ protected:
 	static const uint8_t reg_id_acc = 0xFB;
 	static const uint8_t reg_id_mag = 0x32;
 	static const uint8_t reg_id_gyr = 0x0F;
+
+	// Calibration Register
+	static const uint8_t reg_cal_addr = 0x35;
+	static const uint8_t reg_cal_mask = 0b11000000;
 
 	// I2C Config Registers
 	static const uint8_t reg_pwrmode_addr = 0x3E;
