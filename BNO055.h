@@ -21,22 +21,18 @@ class BNO055
 {
 public:
 
-	// Axis config enum
+	// Axis config enum (x, y, z = ...)
 	typedef enum
 	{
-		tlf,	// Top Left Front
-		trf,	// Top Right Front
-		tlb,	// Top Left Back
-		trb,	// Top Right Back
-		dlf,	// Down Left Front
-		drf,	// Down Right Front
-		dlb,	// Down Left Back
-		drb,	// Down Right Back
+		NWU,	// North West Up
+		ENU,	// East North Up
+		NED,	// North East Down
+		WND,	// West North Down
 	}
 	axis_config_t;
 
 	// Constructor and Basics
-	BNO055(I2CDevice::i2c_t* i2c, axis_config_t axis_config = tlf);
+	BNO055(I2CDevice::i2c_t* i2c, axis_config_t axis_config = NWU);
 	bool init();
 	bool calibrated();
 	void update();

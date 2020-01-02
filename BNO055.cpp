@@ -71,14 +71,10 @@ bool BNO055::init()
 		uint8_t reg_axis_sgn_val = 0x00;
 		switch (axis_config)
 		{
-			case tlf: reg_axis_cfg_val = 0x21; reg_axis_sgn_val = 0x04; break;
-			case trf: reg_axis_cfg_val = 0x24; reg_axis_sgn_val = 0x00; break;
-			case tlb: reg_axis_cfg_val = 0x24; reg_axis_sgn_val = 0x06; break;
-			case trb: reg_axis_cfg_val = 0x21; reg_axis_sgn_val = 0x02; break;
-			case dlf: reg_axis_cfg_val = 0x24; reg_axis_sgn_val = 0x03; break;
-			case drf: reg_axis_cfg_val = 0x21; reg_axis_sgn_val = 0x01; break;
-			case dlb: reg_axis_cfg_val = 0x21; reg_axis_sgn_val = 0x07; break;
-			case drb: reg_axis_cfg_val = 0x24; reg_axis_sgn_val = 0x05; break;
+			case NWU: reg_axis_cfg_val = 0x24; reg_axis_sgn_val = 0x00; break;
+			case ENU: reg_axis_cfg_val = 0x21; reg_axis_sgn_val = 0x04; break;
+			case NED: reg_axis_cfg_val = 0x24; reg_axis_sgn_val = 0x03; break;
+			case WND: reg_axis_cfg_val = 0x21; reg_axis_sgn_val = 0x01; break;
 		}
 		i2c.set(reg_axis_config_addr, reg_axis_cfg_val);
 		i2c.set(reg_axis_sign_addr, reg_axis_sgn_val);
